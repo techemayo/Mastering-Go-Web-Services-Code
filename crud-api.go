@@ -14,6 +14,26 @@ type testData struct {
 }
 
 func main() {
+	http.HandleFunc("/get-test", func(rw http.ResponseWriter, r *http.Request) {
+
+		url := "http://root:asif4106@127.0.0.1:5984/newdb/_all_docs"
+		fmt.Println("URL:>", url)
+
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Set("Content-Type", "application/json")
+		client := &http.Client{}
+		resp, err := client.Do(req)
+
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+
+		fmt.Println("response Status:", resp.Status)
+		fmt.Println("response Headers:", resp.Header)
+		body, _ := ioutil.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	})
 	http.HandleFunc("/post-test", func(rw http.ResponseWriter, r *http.Request) {
 
 		url := "http://root:asif4106@127.0.0.1:5984/newdb"
