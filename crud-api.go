@@ -60,6 +60,34 @@ func main() {
 		body, _ := ioutil.ReadAll(resp.Body)
 		fmt.Println("response Body:", string(body))
 	})
+	type ReqBody struct {
+		Topic      string `json:"topic"`
+		Data       string `json:"data"`
+		ID         string `json:"id"`
+		RevisionID string `json:"revisionID"`
+	}
+	http.HandleFunc("/put-test", func(rw http.ResponseWriter, r *http.Request) {
+		var putReqBody ReqBody
+		_ = json.NewDecoder(r.Body).Decode(&putReqBody)
+
+		ID := putReqBody.ID
+		updateValue := `'{"topic" : "` + putReqBody.Topic + `, "_rev" : "` + putReqBody.RevisionID + `"}'`
+		url := "http://root:asif4106@127.0.0.1:5984/newdb/" + ID + " -d " + updateValue
+		fmt.Println(url)
+		client := http.Client{}
+		req, err := http.NewRequest("PUT", url, nil)
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := client.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+
+		fmt.Println("response Status:", resp.Status)
+		fmt.Println("response Headers:", resp.Header)
+		body, _ := ioutil.ReadAll(resp.Body)
+		fmt.Println("response Body:", string(body))
+	})
 	http.ListenAndServe(":8000", nil)
 }
 
